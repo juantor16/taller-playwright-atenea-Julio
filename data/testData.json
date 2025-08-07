@@ -1,0 +1,14 @@
+{
+    "usuarioValido": {
+        "nombre": "Juan",
+        "apellido": "Torres",
+        "email": "email@valido.com",
+        "contrasena": "123456"
+    },
+    "UsuarioInvalido": {
+        "nombre": "Juan",
+        "apellido": "Torres",
+        "email": "email@invalido.com",
+        "contrasena": "123456"
+    }
+}
