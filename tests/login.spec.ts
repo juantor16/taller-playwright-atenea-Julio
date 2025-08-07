@@ -3,9 +3,12 @@ import { PaginaLogin } from '../pages/paginaLogin';
 
 let paginaLogin: PaginaLogin
 
-test('TC4 - login exitoso', async ({ page }) => {
-  paginaLogin = new PaginaLogin(page)
+test.beforeEach(async ({page}) => {
+  paginaLogin = new PaginaLogin(page);
   await paginaLogin.visitarPaginaLogin();
+});
+
+test('TC4 - login exitoso', async ({ page }) => {
   await paginaLogin.logueoExitoso("Juan.torres333@example.com", "contraseña123");
 });
 
