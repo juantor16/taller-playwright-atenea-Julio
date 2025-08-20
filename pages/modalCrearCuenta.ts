@@ -15,10 +15,29 @@ export class ModalCrearCuenta {
         // Asignamos el page a la propiedad de la clase
         this.page = page;
         this.tipoDeCuentaCombobox = this.page.getByRole('combobox', { name: 'Tipo de cuenta *' })
-        this.opcionDebito = this.page.getByRole('option', { name: 'Débito' })
         this.montoInicialInput = this.page.getByRole('spinbutton', { name: 'Monto inicial *' })
         this.botonCrearCuenta = this.page.getByTestId('boton-crear-cuenta')
     }
 
+    async seleccionarTipoDeCuenta(tipoDeCuenta: string) {
+        await this.tipoDeCuentaCombobox.click();
+        try {
+            await this.page.getByRole('option', { name: tipoDeCuenta }).click();
+        } catch (error) {
+            console.log(`La opcion ${tipoDeCuenta} no existe en el combobox`);
+        }
+    }
+
+    async completarMontoInicial(monto: string) {
+        await this.montoInicialInput.fill(monto);
+    }
+
+    async crearCuenta(tipoDeCuenta: string, montoInicial: string) {
+        await this.seleccionarTipoDeCuenta(tipoDeCuenta);
+        await this.completarMontoInicial(montoInicial);
+        await this.botonCrearCuenta.click();
+        // Validar que la cuenta se haya creado exitosamente
+        await expect(this.page.getByText('Cuenta creada exitosamente')).toBeVisible();
+    }
 
 }
