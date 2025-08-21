@@ -94,7 +94,7 @@ jobs:
 
                 # Clonar rama de gh-pages en carpeta temporal
                 cd $RUNNER_TEMP
-                git clone --branch gh-pages https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages}
+                git clone --branch gh-pages https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages
                 
                 cd gh-pages
 
