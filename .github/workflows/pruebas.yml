@@ -86,28 +86,61 @@ jobs:
                 name: playwright-report
                 path: ./playwright-report
 
-            - name: Deployar reporte a gihub pages
+            - name: Deploy Playwright report to GitHub Pages
               if: always()
               run: |
                 git config --global user.name "github-actions[bot]"
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-                # Clonar rama de gh-pages en carpeta temporal
+                  
+                # Clonar gh-pages branch en carpeta temporal
                 cd $RUNNER_TEMP
-                git clone --branch gh-pages https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages
-                
+                git clone --depth=1 --branch=gh-pages https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages || {
+                # Si la rama gh-pages no existe, crearla
+                git clone https://x-access-token:${{ secrets.GH_PAGES_PAT }}@github.com/${{ github.repository }} gh-pages
                 cd gh-pages
-
-                # Limpiamos el contenido viejo
-                rm -rf ./*
-
-                # Copiamos el contenido del reporte
+                git checkout --orphan gh-pages
+                git rm -rf . || true
+                echo "# Playwright Reports" > README.md
+                git add README.md
+                git commit -m "Initial gh-pages branch"
+                git push origin gh-pages
+                cd ..
+                }
+                  
+                cd gh-pages
+                  
+                # Limpiar contenido viejo (opcional, si quieres mantener historial comenta esta línea)
+                # rm -rf ./*
+                  
+                # Copiar nuevo contenido del reporte
                 mkdir -p report-${GITHUB_RUN_NUMBER}
                 cp -r $GITHUB_WORKSPACE/playwright-report/* ./report-${GITHUB_RUN_NUMBER}
-
-                # commiteamos y pusheamos los cambios
+                  
+                # Crear un index.html que liste todos los reportes
+                cat > index.html << 'EOF'
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                      <title>Playwright Test Reports</title>
+                      <style>
+                          body { font-family: Arial, sans-serif; margin: 40px; }
+                          h1 { color: #333; }
+                          .report-link { display: block; margin: 10px 0; padding: 10px; background: #f0f0f0; text-decoration: none; color: #333; }
+                          .report-link:hover { background: #e0e0e0; }
+                      </style>
+                  </head>
+                  <body>
+                      <h1>📊 Playwright Test Reports</h1>
+                      <a href="./report-${{ github.run_number }}/index.html" class="report-link">
+                          Report #${{ github.run_number }} - ${{ github.event.head_commit.message }}
+                      </a>
+                  </body>
+                  </html>
+                  EOF
+                  
+                # Commit y push
                 git add .
-                git commit -m "Reporte de playwright - Ejecucion #${GITHUB_RUN_NUMBER}"
+                git commit -m "📊 Reporte Playwright - Build $GITHUB_RUN_NUMBER" || echo "No changes to commit"
                 git push origin gh-pages
 
             - name: Imprimir URL de reporte en consola
